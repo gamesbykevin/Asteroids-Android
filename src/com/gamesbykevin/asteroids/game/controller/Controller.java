@@ -137,8 +137,8 @@ public class Controller implements IController
                 buttons.get(Assets.ImageGameKey.AudioOff).setVisible(!Audio.isAudioEnabled());
                 
                 getGame().getScreen().getScreenOptions().setIndex(
-                	OptionsScreen.INDEX_BUTTON_SOUND, 
-                	getGame().getScreen().getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_SOUND) + 1
+                	OptionsScreen.Key.Sound,
+                	getGame().getScreen().getScreenOptions().getIndex(OptionsScreen.Key.Sound) + 1
                 );
             }
         }

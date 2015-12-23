@@ -91,12 +91,7 @@ public class Assets
     	AudioOff,
     	AudioOn,
     	Background,
-    	Colors,
     	Exit,
-    	LevelComplete,
-    	LevelOpen,
-    	PageNext,
-    	PagePrevious,
     	Pause
     }
     
@@ -115,7 +110,7 @@ public class Assets
      */
     public enum AudioMenuKey
     {
-        Selection
+        
     }
     
     /**
@@ -124,7 +119,7 @@ public class Assets
      */
     public enum AudioGameKey
     {
-    	Lose, Switch1, Switch2, Switch3, Switch4, Switch5, Switch6, Win
+    	
     }
     
     /**

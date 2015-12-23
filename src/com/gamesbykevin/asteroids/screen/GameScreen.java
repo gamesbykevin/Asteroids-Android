@@ -5,7 +5,6 @@ import android.view.MotionEvent;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.screen.Screen;
 import com.gamesbykevin.asteroids.game.Game;
-import com.gamesbykevin.asteroids.panel.GamePanel;
 
 /**
  * The game screen that contains the game
@@ -40,15 +39,6 @@ public class GameScreen implements Screen, Disposable
         
         //reset the game
         getGame().reset();
-        
-        //reset the level select
-        getGame().getLevelSelect().reset();
-        
-        getGame().getLevelSelect().setDescription(
-    		(screen.getScreenOptions().getIndex(OptionsScreen.INDEX_BUTTON_COLORS) + 3) + " Colors - ",
-    		(GamePanel.WIDTH / 2) - 120, 
-    		GamePanel.HEIGHT - 25
-        );
     }
     
     /**

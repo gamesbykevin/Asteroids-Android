@@ -31,20 +31,31 @@ public final class Settings extends Internal
         {
             try
             {
-                //split the content into an array
+                //split the content into an array (each element for each option in settings)
                 final String[] data = super.getContent().toString().split(SEPARATOR);
 
-                for (int key = 0; key < data.length; key++)
+                //get the # of the options in the settings
+                final int length = OptionsScreen.Key.values().length;
+                
+                //load each option
+                for (int position = 0; position < length; position++)
                 {
-                	//get the index value in this array element
-                	int index = Integer.parseInt(data[key]);
+                	//make sure we stay in bounds
+                	if (position >= length || position >= data.length)
+                		break;
+                	
+                	//locate the option key
+                	OptionsScreen.Key key = OptionsScreen.Key.values()[position];
+                	
+                	//parse the index value from this array element
+                	final int value = Integer.parseInt(data[position]);
                 	
                 	//restore settings
-                	screen.setIndex(key, index);
+                	screen.setIndex(key, value);
                 	
                 	//if the sound option, we need to flag the audio enabled/disabled
-                	if (key == OptionsScreen.INDEX_BUTTON_SOUND)
-                		Audio.setAudioEnabled(index == 0);
+                	if (key == OptionsScreen.Key.Sound)
+                		Audio.setAudioEnabled(value == 0);
                 }
             }
             catch (Exception e)
@@ -69,15 +80,17 @@ public final class Settings extends Internal
             super.getContent().delete(0, super.getContent().length());
 
             //save every option we have in our options screen
-            for (int key = 0; key < screen.getButtons().size(); key++)
+            for (OptionsScreen.Key key : OptionsScreen.Key.values())
             {
             	//add the data to our string builder
             	super.getContent().append(screen.getButtons().get(key).getIndex());
             	
-            	//if not at the last option add delimiter
-            	if (key < screen.getButtons().size() - 1)
-            		super.getContent().append(SEPARATOR);
+            	//add delimiter to separate each option index value
+        		super.getContent().append(SEPARATOR);
             }
+            
+            //remove the last character since there won't be any additional settings
+            super.getContent().deleteCharAt(super.getContent().length() - 1);
 
             //save data
             super.save();
