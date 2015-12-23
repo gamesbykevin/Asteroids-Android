@@ -38,7 +38,7 @@ public class OptionsScreen implements Screen, Disposable
     //our paint object for this screen
     private Paint paint;
     
-    //buttons to access each button list
+    //buttons to access each button in the list
     public enum Key
     {
     	Back, Sound, Vibrate, Colors, Instructions, Facebook, Twitter
@@ -80,18 +80,32 @@ public class OptionsScreen implements Screen, Disposable
         y += ScreenManager.BUTTON_Y_INCREMENT;
         addButtonBack(x, y);
         
+        //add social media icons after the above, because the dimensions are different
+        addIcons();
+        
         //setup each button
         for (Key key : Key.values())
         {
         	final Button button = buttons.get(key);
-        	button.setWidth(MenuScreen.BUTTON_WIDTH);
-        	button.setHeight(MenuScreen.BUTTON_HEIGHT);
-        	button.updateBounds();
-        	button.positionText(paint);
+        	
+        	switch (key)
+        	{
+	        	case Instructions:
+	        	case Facebook:
+	        	case Twitter:
+	        		button.setWidth(MenuScreen.ICON_DIMENSION);
+	            	button.setHeight(MenuScreen.ICON_DIMENSION);
+	            	button.updateBounds();
+	        		break;
+        		
+        		default:
+                	button.setWidth(MenuScreen.BUTTON_WIDTH);
+                	button.setHeight(MenuScreen.BUTTON_HEIGHT);
+                	button.updateBounds();
+                	button.positionText(paint);
+        			break;
+        	}
         }
-        
-        //add social media icons after the above, because the dimensions are different
-        addIcons();
         
         //create our settings object last, which will load the previous settings
         this.settings = new Settings(this, screen.getPanel().getActivity());
@@ -115,25 +129,16 @@ public class OptionsScreen implements Screen, Disposable
         Button tmp = new Button(Images.getImage(Assets.ImageMenuKey.Instructions));
         tmp.setX(GamePanel.WIDTH - (MenuScreen.ICON_DIMENSION * 4.5));
         tmp.setY(GamePanel.HEIGHT - (MenuScreen.ICON_DIMENSION * 1.25));
-    	tmp.setWidth(MenuScreen.ICON_DIMENSION);
-    	tmp.setHeight(MenuScreen.ICON_DIMENSION);
-    	tmp.updateBounds();
         this.buttons.put(Key.Instructions, tmp);
         
         tmp = new Button(Images.getImage(Assets.ImageMenuKey.Facebook));
         tmp.setX(GamePanel.WIDTH - (MenuScreen.ICON_DIMENSION * 3));
         tmp.setY(GamePanel.HEIGHT - (MenuScreen.ICON_DIMENSION * 1.25));
-    	tmp.setWidth(MenuScreen.ICON_DIMENSION);
-    	tmp.setHeight(MenuScreen.ICON_DIMENSION);
-    	tmp.updateBounds();
         this.buttons.put(Key.Facebook, tmp);
         
         tmp = new Button(Images.getImage(Assets.ImageMenuKey.Twitter));
         tmp.setX(GamePanel.WIDTH - (MenuScreen.ICON_DIMENSION * 1.5));
         tmp.setY(GamePanel.HEIGHT - (MenuScreen.ICON_DIMENSION * 1.25));
-    	tmp.setWidth(MenuScreen.ICON_DIMENSION);
-    	tmp.setHeight(MenuScreen.ICON_DIMENSION);
-    	tmp.updateBounds();
         this.buttons.put(Key.Twitter, tmp);
     }
     
