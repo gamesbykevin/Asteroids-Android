@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.view.MotionEvent;
 
 import com.gamesbykevin.androidframework.awt.Button;
-import com.gamesbykevin.androidframework.resources.Audio;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
@@ -66,17 +65,17 @@ public class MenuScreen implements Screen, Disposable
     /**
      * Dimension of the standard menu button
      */
-    public static final int BUTTON_WIDTH = 223;
+    public static final int BUTTON_WIDTH = 300;
     
     /**
      * Dimension of the standard menu button
      */
-    public static final int BUTTON_HEIGHT = 88;
+    public static final int BUTTON_HEIGHT = 80;
     
     /**
      * The size of our icon buttons
      */
-    public static final int ICON_DIMENSION = 64;
+    public static final int ICON_DIMENSION = 80;
     
     public MenuScreen(final ScreenManager screen)
     {
@@ -92,45 +91,38 @@ public class MenuScreen implements Screen, Disposable
         //temporary button
         Button tmp;
         
-        int x = ScreenManager.BUTTON_X;
-        int y = ScreenManager.BUTTON_Y;
+        double x = ScreenManager.BUTTON_X;
+        double y = ScreenManager.BUTTON_Y;
         
-        tmp = new Button(Images.getImage(Assets.ImageMenuKey.Button));
-        tmp.setX(x);
-        tmp.setY(y);
-        tmp.addDescription(BUTTON_TEXT_START_GAME);
-        this.buttons.put(Key.Start, tmp);
+        final Assets.ImageMenuKey imageKey = Assets.ImageMenuKey.Button;
         
-        y += ScreenManager.BUTTON_Y_INCREMENT;
-        tmp = new Button(Images.getImage(Assets.ImageMenuKey.Button));
-        tmp.setX(x);
-        tmp.setY(y);
-        tmp.addDescription(BUTTON_TEXT_OPTIONS);
-        this.buttons.put(Key.Settings, tmp);
+        addButton(x, y, BUTTON_TEXT_START_GAME, Key.Start, imageKey);
+        
+        x += ScreenManager.BUTTON_X_INCREMENT;
+        addButton(x, y, BUTTON_TEXT_OPTIONS, Key.Settings, imageKey);
         
         y += ScreenManager.BUTTON_Y_INCREMENT;
-        tmp = new Button(Images.getImage(Assets.ImageMenuKey.Button));
-        tmp.setX(x);
-        tmp.setY(y);
-        tmp.addDescription(BUTTON_TEXT_RATE_APP);
-        this.buttons.put(Key.Rate, tmp);
+        x = ScreenManager.BUTTON_X;
+        addButton(x, y, BUTTON_TEXT_RATE_APP, Key.Rate, imageKey);
+        
+        x += ScreenManager.BUTTON_X_INCREMENT;
+        addButton(x, y, BUTTON_TEXT_MORE_GAMES, Key.More, imageKey);
         
         y += ScreenManager.BUTTON_Y_INCREMENT;
-        tmp = new Button(Images.getImage(Assets.ImageMenuKey.Button));
-        tmp.setX(x);
-        tmp.setY(y);
-        tmp.addDescription(BUTTON_TEXT_MORE_GAMES);
-        this.buttons.put(Key.More, tmp);
+        x = ScreenManager.BUTTON_X;
+        addButton(x, y, BUTTON_TEXT_EXIT_GAME, Key.Exit, imageKey);
+
+        x = GamePanel.WIDTH - (ICON_DIMENSION * 4.5);
+        y = GamePanel.HEIGHT - (ICON_DIMENSION * 1.25);
+        addButton(x, y, Key.Instructions, Assets.ImageMenuKey.Instructions);
         
-        y += ScreenManager.BUTTON_Y_INCREMENT;
-        tmp = new Button(Images.getImage(Assets.ImageMenuKey.Button));
-        tmp.setX(x);
-        tmp.setY(y);
-        tmp.addDescription(BUTTON_TEXT_EXIT_GAME);
-        this.buttons.put(Key.Exit, tmp);
+        x = GamePanel.WIDTH - (ICON_DIMENSION * 3);
+        y = GamePanel.HEIGHT - (ICON_DIMENSION * 1.25);
+        addButton(x, y, Key.Facebook, Assets.ImageMenuKey.Facebook);
         
-        //add social media icons
-        addIcons();
+        x = GamePanel.WIDTH - (ICON_DIMENSION * 1.5);
+        y = GamePanel.HEIGHT - (ICON_DIMENSION * 1.25);
+        addButton(x, y, Key.Twitter, Assets.ImageMenuKey.Twitter);
         
         //set the size and bounds of the buttons
         for (Key key : Key.values())
@@ -152,31 +144,45 @@ public class MenuScreen implements Screen, Disposable
                 	button.setWidth(BUTTON_WIDTH);
                 	button.setHeight(BUTTON_HEIGHT);
                     button.updateBounds();
-                    button.positionText(screen.getPaint());
+                    button.positionText(getScreen().getPaint());
         			break;
         	}
         }
     }
     
-    /**
-     * Add icons, including links to social media
-     */
-    private void addIcons()
+    private ScreenManager getScreen()
     {
-        Button tmp = new Button(Images.getImage(Assets.ImageMenuKey.Instructions));
-        tmp.setX(GamePanel.WIDTH - (ICON_DIMENSION * 4.5));
-        tmp.setY(GamePanel.HEIGHT - (ICON_DIMENSION * 1.25));
-        this.buttons.put(Key.Instructions, tmp);
+    	return this.screen;
+    }
+    
+    private void addButton(final double x, final double y, final Key key, final Assets.ImageMenuKey imageKey)
+    {
+    	addButton(x, y, null, key, imageKey);
+    }
+    
+    /**
+     * Add button to the list
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @param desc Text description
+     * @param key Unique key to access button
+     * @param imageKey Image for the button
+     */
+    private void addButton(final double x, final double y, final String desc, final Key key, final Assets.ImageMenuKey imageKey)
+    {
+    	//create button of specified image
+        Button button = new Button(Images.getImage(imageKey));
         
-        tmp = new Button(Images.getImage(Assets.ImageMenuKey.Facebook));
-        tmp.setX(GamePanel.WIDTH - (ICON_DIMENSION * 3));
-        tmp.setY(GamePanel.HEIGHT - (ICON_DIMENSION * 1.25));
-        this.buttons.put(Key.Facebook, tmp);
+        //set the location
+        button.setX(x);
+        button.setY(y);
         
-        tmp = new Button(Images.getImage(Assets.ImageMenuKey.Twitter));
-        tmp.setX(GamePanel.WIDTH - (ICON_DIMENSION * 1.5));
-        tmp.setY(GamePanel.HEIGHT - (ICON_DIMENSION * 1.25));
-        this.buttons.put(Key.Twitter, tmp);
+        //add description if exists
+        if (desc != null && desc.length() > 0)
+        	button.addDescription(desc);
+        
+        //add button to list
+        this.buttons.put(key, button);
     }
     
     /**
@@ -189,13 +195,13 @@ public class MenuScreen implements Screen, Disposable
     }
     
     @Override
-    public boolean update(final MotionEvent event, final float x, final float y) throws Exception
+    public boolean update(final int action, final float x, final float y) throws Exception
     {
         //if the game is to reset, don't continue
         if (reset)
             return false;
         
-        if (event.getAction() == MotionEvent.ACTION_UP)
+        if (action == MotionEvent.ACTION_UP)
         {
         	//check every button
         	for (Key key : Key.values())
@@ -361,7 +367,7 @@ public class MenuScreen implements Screen, Disposable
 	        			case Settings: 
         				case More: 
     					case Rate:
-	        				button.render(canvas, screen.getPaint());
+	        				button.render(canvas, getScreen().getPaint());
 	        				break;
 	        				
         				default:

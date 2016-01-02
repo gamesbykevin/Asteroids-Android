@@ -54,7 +54,7 @@ public class Assets
      */
     public enum FontMenuKey
     {
-        Default
+        
     }
     
     /**
@@ -77,9 +77,9 @@ public class Assets
         Confirm,
         Facebook,
         Instructions,
+        Twitter,
     	Logo,
     	Splash,
-        Twitter
     }
     
     /**
@@ -88,11 +88,19 @@ public class Assets
      */
     public enum ImageGameKey
     {
+    	Asteroids,
     	AudioOff,
     	AudioOn,
-    	Background,
     	Exit,
-    	Pause
+    	Explosion,
+    	Fire,
+    	Lasers,
+    	Pause,
+    	RotateL,
+    	RotateR,
+    	ShipA,
+    	ShipB,
+    	Thrust
     }
     
     /**

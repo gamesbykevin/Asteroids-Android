@@ -3,17 +3,13 @@ package com.gamesbykevin.asteroids.screen;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.view.MotionEvent;
-import com.gamesbykevin.androidframework.anim.Animation;
-import com.gamesbykevin.androidframework.base.Entity;
+import android.graphics.Typeface;
 import com.gamesbykevin.androidframework.resources.Audio;
 
 import com.gamesbykevin.androidframework.resources.Disposable;
-import com.gamesbykevin.androidframework.resources.Font;
-import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
-import com.gamesbykevin.asteroids.assets.Assets;
 import com.gamesbykevin.asteroids.panel.GamePanel;
+import com.gamesbykevin.asteroids.screen.background.Background;
 
 import java.util.HashMap;
 
@@ -24,7 +20,7 @@ import java.util.HashMap;
 public final class ScreenManager implements Screen, Disposable
 {
     //the background image
-    private Entity background;
+    private Background background;
     
     /**
      * These are the different states in our game
@@ -43,28 +39,28 @@ public final class ScreenManager implements Screen, Disposable
     //the screens in our main screen
     private HashMap<State, Screen> screens;
     
-    //the object representing the button text
-    private Paint paintButton;
+    //the paint object used for the button text
+    private Paint paint;
     
     /**
      * The x-coordinate where we want the logo to be displayed
      */
-    public static final int LOGO_X = 40;
+    public static final int LOGO_X = 75;
     
     /**
      * The y-coordinate where we want the logo to be displayed
      */
-    public static final int LOGO_Y = 25;
+    public static final int LOGO_Y = 5;
     
     /**
      * The x-coordinate where we want to start putting the buttons
      */
-    public static final int BUTTON_X = 129;
+    public static final int BUTTON_X = LOGO_X;
     
     /**
      * The y-coordinate where we want to start putting the buttons
      */
-    public static final int BUTTON_Y = 135;
+    public static final int BUTTON_Y = 180;
     
     /**
      * The y-coordinate spacing between each button
@@ -74,17 +70,17 @@ public final class ScreenManager implements Screen, Disposable
     /**
      * The y-coordinate spacing between each button
      */
-    public static final int BUTTON_X_INCREMENT = 250;
+    public static final int BUTTON_X_INCREMENT = MenuScreen.BUTTON_WIDTH + (MenuScreen.BUTTON_WIDTH / 4);
     
     /**
      * The alpha visibility to apply when darkening the background
      */
-    public static final int ALPHA_DARK = 175;
+    public static final int ALPHA_DARK = 205;
     
     /**
      * Default font size
      */
-    public static final float DEFAULT_FONT_SIZE = 34f;
+    public static final float DEFAULT_FONT_SIZE = 48f;
     
     /**
      * Create our main screen
@@ -93,16 +89,7 @@ public final class ScreenManager implements Screen, Disposable
     public ScreenManager(final GamePanel panel)
     {
         //create a new background
-        this.background = new Entity();
-        
-        //assign position, size
-        this.background.setX(0);
-        this.background.setY(0);
-        this.background.setWidth(GamePanel.WIDTH);
-        this.background.setHeight(GamePanel.HEIGHT);
-
-        //add animation to sprite sheet
-        this.background.getSpritesheet().add(Assets.ImageMenuKey.Background, new Animation(Images.getImage(Assets.ImageMenuKey.Background)));
+        this.background = new Background(this);
         
         //store our game panel reference
         this.panel = panel;
@@ -119,36 +106,41 @@ public final class ScreenManager implements Screen, Disposable
         //default to the ready state
         setState(State.Ready);
     }
+
+    private Background getBackground()
+    {
+    	return this.background;
+    }
     
     @Override
-    public boolean update(final MotionEvent event, final float x, final float y) throws Exception
+    public boolean update(final int action, final float x, final float y) throws Exception
     {
-        return getScreen(getState()).update(event, x, y);
+        return getScreen(getState()).update(action, x, y);
     }
     
     /**
      * Get the paint object
-     * @return The object controlling the text on the buttons
+     * @return The paint object primarily used for the menus
      */
     public Paint getPaint()
     {
-        if (paintButton == null)
+        if (paint == null)
         {
             //create new paint object
-            this.paintButton = new Paint();
-
-            //set the font object
-            this.paintButton.setTypeface(Font.getFont(Assets.FontMenuKey.Default));
+            this.paint = new Paint();
+            
+            //make the default font text bold
+            this.paint.setTypeface(Typeface.DEFAULT_BOLD);
             
             //set the text size
-            this.paintButton.setTextSize(DEFAULT_FONT_SIZE);
+            this.paint.setTextSize(DEFAULT_FONT_SIZE);
 
             //set the color
-            this.paintButton.setColor(Color.WHITE);
+            this.paint.setColor(Color.WHITE);
         }
         
         //return object
-        return this.paintButton;
+        return this.paint;
     }
     
     /**
@@ -158,6 +150,10 @@ public final class ScreenManager implements Screen, Disposable
     @Override
     public void update() throws Exception
     {
+    	//update background
+    	getBackground().update();
+    	
+    	//update current screen
         getScreen(getState()).update();
     }
     
@@ -259,7 +255,7 @@ public final class ScreenManager implements Screen, Disposable
             canvas.drawColor(Color.BLACK);
             
             //draw the background
-            background.render(canvas);
+            getBackground().render(canvas);
             
             //render the game
             getScreenGame().render(canvas);
@@ -269,8 +265,9 @@ public final class ScreenManager implements Screen, Disposable
             {
                 case Ready:
                 	
-                	//darken background
-                    darkenBackground(canvas);
+                	//darken the background if the game exists
+                	if (getScreenGame().getGame() != null)
+                		darkenBackground(canvas);
                     
                     //draw menu
                     if (getScreen(getState()) != null)
@@ -296,14 +293,16 @@ public final class ScreenManager implements Screen, Disposable
 
                 case Options:
                 	
-                	//darken background
-                    darkenBackground(canvas);
+                	//darken the background if the game exists
+                	if (getScreenGame().getGame() != null)
+                		darkenBackground(canvas);
                     
                     if (getScreen(getState()) != null)
                         getScreen(getState()).render(canvas);
                     break;
                     
                 case Exit:
+                	
                     //darken background
                     darkenBackground(canvas);
                     
@@ -336,7 +335,7 @@ public final class ScreenManager implements Screen, Disposable
     /**
      * Draw an overlay over the background
      * @param canvas Object we are writing pixel data to
-     * @param alpha The visibility of the overlay range from 0 (0% visible) - 255 (100% visible)
+     * @param alpha The visibility of the overlay we are to display, ranging from 0 (0% visible) - 255 (100% visible)
      */
     public static final void darkenBackground(final Canvas canvas, int alpha)
     {
@@ -369,8 +368,8 @@ public final class ScreenManager implements Screen, Disposable
             background = null;
         }
         
-        if (paintButton != null)
-            paintButton = null;
+        if (paint != null)
+        	paint = null;
         
         if (screens != null)
         {

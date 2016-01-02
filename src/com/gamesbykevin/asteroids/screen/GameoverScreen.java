@@ -9,7 +9,6 @@ import android.view.MotionEvent;
 import java.util.HashMap;
 
 import com.gamesbykevin.androidframework.awt.Button;
-import com.gamesbykevin.androidframework.resources.Audio;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Font;
 import com.gamesbykevin.androidframework.resources.Images;
@@ -179,13 +178,13 @@ public class GameoverScreen implements Screen, Disposable
     }
     
     @Override
-    public boolean update(final MotionEvent event, final float x, final float y) throws Exception
+    public boolean update(final int action, final float x, final float y) throws Exception
     {
         //if we aren't displaying the menu, return false
         if (!hasDisplay())
             return false;
         
-        if (event.getAction() == MotionEvent.ACTION_UP)
+        if (action == MotionEvent.ACTION_UP)
         {
         	for (Key key : Key.values())
         	{

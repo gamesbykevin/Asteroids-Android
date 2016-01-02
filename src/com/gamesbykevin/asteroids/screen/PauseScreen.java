@@ -1,7 +1,6 @@
 package com.gamesbykevin.asteroids.screen;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.MotionEvent;
@@ -33,15 +32,16 @@ public class PauseScreen implements Screen, Disposable
     //store the previous state
     private ScreenManager.State previous;
     
+    private static final float DEFAULT_FONT_SIZE = 96f;
+    
     public PauseScreen(final ScreenManager screen)
     {
         //store our parent reference
         this.screen = screen;
         
         //create paint text object
-        this.paint = new Paint();
-        this.paint.setColor(Color.WHITE);
-        this.paint.setTextSize(96f);
+        this.paint = new Paint(screen.getPaint());
+        this.paint.setTextSize(DEFAULT_FONT_SIZE);
         
         //create temporary rectangle
         Rect tmp = new Rect();
@@ -85,9 +85,9 @@ public class PauseScreen implements Screen, Disposable
     }
     
     @Override
-    public boolean update(final MotionEvent event, final float x, final float y) throws Exception
+    public boolean update(final int action, final float x, final float y) throws Exception
     {
-        if (event.getAction() == MotionEvent.ACTION_UP)
+        if (action == MotionEvent.ACTION_UP)
         {
             //return to the previous state
             screen.setState(previous);

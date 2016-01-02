@@ -1,14 +1,16 @@
 package com.gamesbykevin.asteroids.game;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Vibrator;
-import android.view.MotionEvent;
-
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.asteroids.assets.Assets;
+import com.gamesbykevin.asteroids.entity.asteroid.Asteroid;
+import com.gamesbykevin.asteroids.entity.asteroid.Asteroids;
+import com.gamesbykevin.asteroids.entity.effect.Effects;
+import com.gamesbykevin.asteroids.entity.laser.Lasers;
+import com.gamesbykevin.asteroids.entity.ship.Ship;
+import com.gamesbykevin.asteroids.entity.ship.Ships;
 import com.gamesbykevin.asteroids.game.controller.Controller;
 import com.gamesbykevin.asteroids.screen.ScreenManager;
 
@@ -33,10 +35,22 @@ public final class Game implements IGame
     //has the player been notified (has the user seen the loading screen)
     private boolean notify = false;
     
+    //our collection of ships
+    private Ships ships;
+    
+    //our collection of asteroids
+    private Asteroids asteroids;
+    
+    //our collection of lasers
+    private Lasers lasers;
+    
+    //our collection of effects
+    private Effects effects;
+    
     /**
      * The length to vibrate the phone when you beat a level
      */
-    private static final long VIBRATION_DURATION = 300;
+    private static final long VIBRATION_DURATION = 500;
     
     /**
      * Create our game object
@@ -74,6 +88,42 @@ public final class Game implements IGame
     public Controller getController()
     {
     	return this.controller;
+    }
+    
+    /**
+     * Get the effects
+     * @return Our collection of objects
+     */
+    public Effects getEffects()
+    {
+    	return this.effects;
+    }
+    
+    /**
+     * Get the lasers
+     * @return Our collection of objects
+     */
+    public Lasers getLasers()
+    {
+    	return this.lasers;
+    }
+    
+    /**
+     * Get the ships
+     * @return Our collection of objects
+     */
+    public Ships getShips()
+    {
+    	return this.ships;
+    }
+    
+    /**
+     * Get the asteroids
+     * @return Our collection of objects
+     */
+    public Asteroids getAsteroids()
+    {
+    	return this.asteroids;
     }
     
     @Override
@@ -114,14 +164,8 @@ public final class Game implements IGame
         return this.paint;
     }
     
-    /**
-     * Update the game based on a motion event
-     * @param event Motion Event
-     * @param x (x-coordinate)
-     * @param y (y-coordinate)
-     * @throws Exception
-     */
-    public void update(final MotionEvent event, final float x, final float y) throws Exception
+    @Override
+    public void update(final int action, final float x, final float y) throws Exception
     {
     	//if reset we can't continue
     	if (hasReset())
@@ -129,7 +173,7 @@ public final class Game implements IGame
     	
         //update the following
         if (getController() != null)
-        	getController().update(event, x, y);
+        	getController().update(action, x, y);
     }
     
     /**
@@ -144,6 +188,24 @@ public final class Game implements IGame
         	//make sure we have notified first
         	if (notify)
         	{
+        		//create a new collection of ships
+        		this.ships = new Ships(this);
+
+        		//add default ship
+        		this.ships.add(Ship.Type.ShipA);
+        		
+        		//create a new collection of asteroids
+        		this.asteroids = new Asteroids(this);
+        		
+        		//add a default asteroid
+        		this.asteroids.add(0, 0, Asteroid.Type.GreyBig1);
+        		
+        		//create a new collection of lasers
+        		this.lasers = new Lasers(this);
+        		
+        		//create a new collection of effects
+        		this.effects = new Effects();
+        		
 	        	//flag reset false
 	        	setReset(false);
 	        	
@@ -154,6 +216,11 @@ public final class Game implements IGame
         }
         else
         {
+        	getShips().update();
+        	getAsteroids().update();
+        	getLasers().update();
+        	getEffects().update();
+        	
         	//update the game elements
         	if (getController() != null)
         		getController().update();
@@ -178,6 +245,11 @@ public final class Game implements IGame
     	}
     	else
     	{
+    		getLasers().render(canvas);
+    		getShips().render(canvas);
+    		getAsteroids().render(canvas);
+    		getEffects().render(canvas);
+    		
 	    	//render the controller
 	    	if (getController() != null)
 	    		getController().render(canvas);
@@ -193,6 +265,30 @@ public final class Game implements IGame
         {
             controller.dispose();
             controller = null;
+        }
+        
+        if (asteroids != null)
+        {
+        	asteroids.dispose();
+        	asteroids = null;
+        }
+        
+        if (ships != null)
+        {
+        	ships.dispose();
+        	ships = null;
+        }
+        
+        if (lasers != null)
+        {
+        	lasers.dispose();
+        	lasers = null;
+        }
+        
+        if (effects != null)
+        {
+        	effects.dispose();
+        	effects = null;
         }
     }
 }

@@ -14,7 +14,7 @@ public class MainThread extends Thread
     /**
      * Is debug mode enabled?
      */
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     
     /**
      * The default time to sleep when paused
@@ -135,7 +135,14 @@ public class MainThread extends Thread
 
                 //make sure the wait time is at least 1 millisecond
                 if (waitTime < 1)
+                {
+                    //if debugging alert this update took longer than expected
+                    if (DEBUG)
+                    	System.out.println("Thread update took longer than expected: " + waitTime);
+                    
+                    //make sure we sleep at least 1 millisecond
                     waitTime = 1;
+                }
                 
                 try
                 {

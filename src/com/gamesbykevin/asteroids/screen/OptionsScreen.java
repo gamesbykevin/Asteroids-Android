@@ -2,7 +2,6 @@ package com.gamesbykevin.asteroids.screen;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.view.MotionEvent;
 
 import java.util.HashMap;
@@ -35,13 +34,10 @@ public class OptionsScreen implements Screen, Disposable
     //our storage settings object
     private Settings settings;
     
-    //our paint object for this screen
-    private Paint paint;
-    
     //buttons to access each button in the list
     public enum Key
     {
-    	Back, Sound, Vibrate, Colors, Instructions, Facebook, Twitter
+    	Back, Sound, Vibrate, Instructions, Facebook, Twitter
     }
     
     public OptionsScreen(final ScreenManager screen)
@@ -55,12 +51,6 @@ public class OptionsScreen implements Screen, Disposable
         //store our screen reference
         this.screen = screen;
         
-        //create our paint object for this menu
-        this.paint = new Paint(screen.getPaint());
-        
-        //change font size
-        this.paint.setTextSize(ScreenManager.DEFAULT_FONT_SIZE);
-        
         //start coordinates
         int y = ScreenManager.BUTTON_Y;
         int x = ScreenManager.BUTTON_X;
@@ -71,10 +61,6 @@ public class OptionsScreen implements Screen, Disposable
         //add vibrate option
         y += ScreenManager.BUTTON_Y_INCREMENT;
         addButtonVibrate(x, y);
-        
-        //add colors option
-        y += ScreenManager.BUTTON_Y_INCREMENT;
-        addButtonColors(x, y);
         
         //the back button
         y += ScreenManager.BUTTON_Y_INCREMENT;
@@ -102,13 +88,18 @@ public class OptionsScreen implements Screen, Disposable
                 	button.setWidth(MenuScreen.BUTTON_WIDTH);
                 	button.setHeight(MenuScreen.BUTTON_HEIGHT);
                 	button.updateBounds();
-                	button.positionText(paint);
+                	button.positionText(getScreen().getPaint());
         			break;
         	}
         }
         
         //create our settings object last, which will load the previous settings
         this.settings = new Settings(this, screen.getPanel().getActivity());
+    }
+    
+    private ScreenManager getScreen()
+    {
+    	return this.screen;
     }
     
     /**
@@ -140,18 +131,6 @@ public class OptionsScreen implements Screen, Disposable
         tmp.setX(GamePanel.WIDTH - (MenuScreen.ICON_DIMENSION * 1.5));
         tmp.setY(GamePanel.HEIGHT - (MenuScreen.ICON_DIMENSION * 1.25));
         this.buttons.put(Key.Twitter, tmp);
-    }
-    
-    private void addButtonColors(final int x, final int y)
-    {
-        Button button = new Button(Images.getImage(Assets.ImageMenuKey.Button));
-        button.addDescription("Colors: 3");
-        button.addDescription("Colors: 4");
-        button.addDescription("Colors: 5");
-        button.addDescription("Colors: 6");
-        button.setX(x);
-        button.setY(y);
-        this.buttons.put(Key.Colors, button);
     }
     
     private void addButtonBack(final int x, final int y)
@@ -222,9 +201,8 @@ public class OptionsScreen implements Screen, Disposable
 	        		{
 						case Back:
 						case Sound:
-						case Colors:
 						case Vibrate:
-							button.positionText(paint);
+							button.positionText(getScreen().getPaint());
 							break;
 							
 						//do nothing for these
@@ -246,10 +224,10 @@ public class OptionsScreen implements Screen, Disposable
     }
     
     @Override
-    public boolean update(final MotionEvent event, final float x, final float y) throws Exception
+    public boolean update(final int action, final float x, final float y) throws Exception
     {
     	//we only want motion event up
-    	if (event.getAction() != MotionEvent.ACTION_UP)
+    	if (action != MotionEvent.ACTION_UP)
     		return true;
     	
         if (buttons != null)
@@ -279,7 +257,7 @@ public class OptionsScreen implements Screen, Disposable
     	                settings.save();
     	                
     	                //set ready state
-    	                screen.setState(ScreenManager.State.Ready);
+    	                getScreen().setState(ScreenManager.State.Ready);
     	                
     	                //play sound effect
     	                //Audio.play(Assets.AudioMenuKey.Selection);
@@ -292,7 +270,7 @@ public class OptionsScreen implements Screen, Disposable
     					button.setIndex(button.getIndex() + 1);
     					
     					//position the text
-    			        button.positionText(paint);
+    			        button.positionText(getScreen().getPaint());
     					
     	                //play sound effect
     	                //Audio.play(Assets.AudioMenuKey.Selection);
@@ -306,17 +284,17 @@ public class OptionsScreen implements Screen, Disposable
     					button.setIndex(button.getIndex() + 1);
     					
     					//position the text
-    			        button.positionText(paint);
+    			        button.positionText(getScreen().getPaint());
     			        
                         //flip setting
                         Audio.setAudioEnabled(!Audio.isAudioEnabled());
                         
                         //we also want to update the audio button in the controller so the correct is displayed
-                        if (screen.getScreenGame() != null && screen.getScreenGame().getGame() != null)
+                        if (getScreen().getScreenGame() != null && getScreen().getScreenGame().getGame() != null)
                         {
                         	//make sure the controller exists
-                    		if (screen.getScreenGame().getGame().getController() != null)
-                    			screen.getScreenGame().getGame().getController().reset();
+                    		if (getScreen().getScreenGame().getGame().getController() != null)
+                    			getScreen().getScreenGame().getGame().getController().reset();
                         }
                         
                         //play sound effect
@@ -325,27 +303,13 @@ public class OptionsScreen implements Screen, Disposable
                         //exit loop
                         return false;
                         
-    				case Colors:
-    					
-    					//change index
-    					button.setIndex(button.getIndex() + 1);
-    					
-    					//position the text
-    			        button.positionText(paint);
-    					
-                        //play sound effect
-                        //Audio.play(Assets.AudioMenuKey.Selection);
-                        
-                        //no need to continue
-    					return false;
-                        
     				case Instructions:
     					
     	                //play sound effect
     	                //Audio.play(Assets.AudioMenuKey.Selection);
     	                
     	                //go to instructions
-    	                this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_GAME_INSTRUCTIONS_URL);
+    					getScreen().getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_GAME_INSTRUCTIONS_URL);
     	                
     	                //we do not request any additional events
     	                return false;
@@ -356,7 +320,7 @@ public class OptionsScreen implements Screen, Disposable
     	                //Audio.play(Assets.AudioMenuKey.Selection);
     	                
     	                //go to instructions
-    	                this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_FACEBOOK_URL);
+    					getScreen().getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_FACEBOOK_URL);
     	                
     	                //we do not request any additional events
     	                return false;
@@ -367,7 +331,7 @@ public class OptionsScreen implements Screen, Disposable
     	                //Audio.play(Assets.AudioMenuKey.Selection);
     	                
     	                //go to instructions
-    	                this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_TWITTER_URL);
+    					getScreen().getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_TWITTER_URL);
     	                
     	                //we do not request any additional events
     	                return false;
@@ -403,9 +367,8 @@ public class OptionsScreen implements Screen, Disposable
     			{
 	    			case Back:
 	    			case Sound:
-	    			case Colors:
 	    			case Vibrate:
-	    				buttons.get(key).render(canvas, paint);
+	    				buttons.get(key).render(canvas, getScreen().getPaint());
 	    				break;
 	    				
 	    			case Instructions:
@@ -424,9 +387,6 @@ public class OptionsScreen implements Screen, Disposable
     @Override
     public void dispose()
     {
-        if (paint != null)
-        	paint = null;
-    	
         if (settings != null)
         {
             settings.dispose();

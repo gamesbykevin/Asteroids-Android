@@ -27,4 +27,13 @@ public interface IGame extends Disposable
      * @throws Exception
      */
     public void render(final Canvas canvas) throws Exception;
+    
+    /**
+     * Update the game based on a motion event
+     * @param action The action of the MotionEvent
+     * @param x (x-coordinate)
+     * @param y (y-coordinate)
+     * @throws Exception
+     */
+    public void update(final int action, final float x, final float y) throws Exception;
 }

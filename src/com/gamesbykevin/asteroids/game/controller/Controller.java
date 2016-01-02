@@ -8,8 +8,9 @@ import android.view.MotionEvent;
 import com.gamesbykevin.androidframework.resources.Audio;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.asteroids.assets.Assets;
+import com.gamesbykevin.asteroids.entity.ship.Ship;
 import com.gamesbykevin.asteroids.game.Game;
-import com.gamesbykevin.asteroids.screen.OptionsScreen;
+import com.gamesbykevin.asteroids.panel.GamePanel;
 import com.gamesbykevin.asteroids.screen.ScreenManager;
 
 import java.util.HashMap;
@@ -30,13 +31,18 @@ public class Controller implements IController
     private final Game game;
     
     /**
-     * The dimensions of the buttons, to be rendered to the user
+     * The dimensions of the buttons that the user will see
      */
-    private final static int BUTTON_DIMENSION = 64;
+    private final static int BUTTON_DIMENSION = 72;
 
+    /**
+     * The dimensions of the game control buttons that the user will see
+     */
+    private final static int BUTTON_GAME_DIMENSION = 104;
+    
     //location of exit button
     private final static int EXIT_X = (int)(BUTTON_DIMENSION * .25);
-    private final static int EXIT_Y = (int)(BUTTON_DIMENSION * .25);//GamePanel.HEIGHT - (int)(BUTTON_DIMENSION * 1.25);
+    private final static int EXIT_Y = (int)(BUTTON_DIMENSION * .25);
     
     //location of sound button
     private final static int SOUND_X = EXIT_X + (int)(BUTTON_DIMENSION * 1.5);
@@ -45,6 +51,22 @@ public class Controller implements IController
     //location of pause button
     private final static int PAUSE_X = SOUND_X + (int)(BUTTON_DIMENSION * 1.5);
     private final static int PAUSE_Y = EXIT_Y;
+    
+    //location of the rotate left button
+    private final static int ROTATE_L_X = (int)(BUTTON_GAME_DIMENSION * .25);
+    private final static int ROTATE_L_Y = (int)(GamePanel.HEIGHT - BUTTON_GAME_DIMENSION - (BUTTON_GAME_DIMENSION * .25));
+    
+    //location of the rotate right button
+    private final static int ROTATE_R_X = ROTATE_L_X + (int)(BUTTON_GAME_DIMENSION * 1.25);
+    private final static int ROTATE_R_Y = ROTATE_L_Y;
+    
+    //location of thrust button
+    private final static int THRUST_X = (int)(GamePanel.WIDTH - BUTTON_GAME_DIMENSION - (BUTTON_GAME_DIMENSION * .25));
+    private final static int THRUST_Y = ROTATE_L_Y;
+    
+    //location of fire button
+    private final static int FIRE_X = THRUST_X - (int)(BUTTON_GAME_DIMENSION * 1.25);
+    private final static int FIRE_Y = ROTATE_L_Y;
     
     /**
      * Default Constructor
@@ -63,6 +85,10 @@ public class Controller implements IController
         tmp.add(Assets.ImageGameKey.AudioOff);
         tmp.add(Assets.ImageGameKey.AudioOn);
         tmp.add(Assets.ImageGameKey.Exit);
+        tmp.add(Assets.ImageGameKey.Fire);
+        tmp.add(Assets.ImageGameKey.Thrust);
+        tmp.add(Assets.ImageGameKey.RotateL);
+        tmp.add(Assets.ImageGameKey.RotateR);
         
         //create new list of buttons
         this.buttons = new HashMap<Assets.ImageGameKey, Button>();
@@ -73,7 +99,7 @@ public class Controller implements IController
             this.buttons.put(key, new Button(Images.getImage(key)));
         }
         
-        //update location of our buttons
+        //update location of our menu buttons
         this.buttons.get(Assets.ImageGameKey.Pause).setX(PAUSE_X);
         this.buttons.get(Assets.ImageGameKey.Pause).setY(PAUSE_Y);
         this.buttons.get(Assets.ImageGameKey.Exit).setX(EXIT_X);
@@ -83,15 +109,44 @@ public class Controller implements IController
         this.buttons.get(Assets.ImageGameKey.AudioOff).setX(SOUND_X);
         this.buttons.get(Assets.ImageGameKey.AudioOff).setY(SOUND_Y);
         
+        //update location of our game buttons
+        this.buttons.get(Assets.ImageGameKey.Fire).setX(FIRE_X);
+        this.buttons.get(Assets.ImageGameKey.Fire).setY(FIRE_Y);
+        this.buttons.get(Assets.ImageGameKey.Thrust).setX(THRUST_X);
+        this.buttons.get(Assets.ImageGameKey.Thrust).setY(THRUST_Y);
+        this.buttons.get(Assets.ImageGameKey.RotateL).setX(ROTATE_L_X);
+        this.buttons.get(Assets.ImageGameKey.RotateL).setY(ROTATE_L_Y);
+        this.buttons.get(Assets.ImageGameKey.RotateR).setX(ROTATE_R_X);
+        this.buttons.get(Assets.ImageGameKey.RotateR).setY(ROTATE_R_Y);
+        
         for (Assets.ImageGameKey key : tmp)
         {
-            //set the dimensions of each button
-            this.buttons.get(key).setWidth(BUTTON_DIMENSION);
-            this.buttons.get(key).setHeight(BUTTON_DIMENSION);
+        	switch (key)
+        	{
+	        	case Pause:
+	        	case Exit:
+	        	case AudioOn:
+	        	case AudioOff:
+	                //set the dimensions of each button
+	                this.buttons.get(key).setWidth(BUTTON_DIMENSION);
+	                this.buttons.get(key).setHeight(BUTTON_DIMENSION);
+	        		break;
+        		
+        		default:
+                    //set the dimensions of each button
+                    this.buttons.get(key).setWidth(BUTTON_GAME_DIMENSION);
+                    this.buttons.get(key).setHeight(BUTTON_GAME_DIMENSION);
+        			break;
+        	}
 
             //update the boundary of all buttons
             this.buttons.get(key).updateBounds();
         }
+    }
+    
+    private HashMap<Assets.ImageGameKey, Button> getButtons()
+    {
+    	return this.buttons;
     }
     
     /**
@@ -103,61 +158,209 @@ public class Controller implements IController
         return this.game;
     }
     
-    /**
-     * Update the controller based on the motion event
-     * @param event Motion Event
-     * @param x (x-coordinate)
-     * @param y (y-coordinate)
-     * @return true if motion event was applied, false otherwise
-     * @throws Exception
-     */
-    public void update(final MotionEvent event, final float x, final float y) throws Exception
+    @Override
+    public boolean update(final int action, final float x, final float y) throws Exception
     {
-        //check if the touch screen was released
-        if (event.getAction() == MotionEvent.ACTION_UP)
-        {
-            //check if the player hit the controller
-            if (buttons.get(Assets.ImageGameKey.Pause).contains(x, y))
-            {
-                //change the state to paused
-                getGame().getScreen().setState(ScreenManager.State.Paused);
-            }
-            else if (buttons.get(Assets.ImageGameKey.Exit).contains(x, y))
-            {
-                //change to the exit confirm screen
-                getGame().getScreen().setState(ScreenManager.State.Exit);
-            }
-            else if (buttons.get(Assets.ImageGameKey.AudioOn).contains(x, y))
-            {
-                //flip setting
-                Audio.setAudioEnabled(!Audio.isAudioEnabled());
-                
-                //determine which button is displayed
-                buttons.get(Assets.ImageGameKey.AudioOn).setVisible(Audio.isAudioEnabled());
-                buttons.get(Assets.ImageGameKey.AudioOff).setVisible(!Audio.isAudioEnabled());
-                
-                getGame().getScreen().getScreenOptions().setIndex(
-                	OptionsScreen.Key.Sound,
-                	getGame().getScreen().getScreenOptions().getIndex(OptionsScreen.Key.Sound) + 1
-                );
-            }
-        }
+    	//check if there was a change
+    	boolean change = false;
+    	
+    	switch (action)
+    	{
+	    	case MotionEvent.ACTION_MOVE:
+	    		//check each button in our list
+	    		for (Button button : getButtons().values())
+	    		{
+	    			//if the x,y location is not within the button
+	    			if (button != null && button.isVisible() && !button.contains(x, y))
+	    			{
+	    				//if the button is pressed, it will now be released
+	    				if (button.isPressed())
+	    				{
+	    					button.setPressed(true);
+	    					button.setReleased(true);
+	    					
+	    					//flag change true
+	    					change = true;
+	    				}
+	    			}
+	    		}
+	    		break;
+    	
+	    	case MotionEvent.ACTION_UP:
+	    	case MotionEvent.ACTION_POINTER_UP:
+	    		//check each button in our list
+	    		for (Button button : getButtons().values())
+	    		{
+	    			if (button != null && button.isVisible() && button.contains(x, y))
+	    			{
+	    				if (button.isPressed())
+	    				{
+		    				//if contained within the coordinates flag released true
+							button.setReleased(true);
+		    				
+							//flag change true
+							change = true;
+	    				}
+	    			}
+	    		}
+	    		break;
+	    		
+	    	case MotionEvent.ACTION_DOWN:
+	    	case MotionEvent.ACTION_POINTER_DOWN:
+	    		//check each button in our list
+	    		for (Button button : getButtons().values())
+	    		{
+	    			if (button != null && button.isVisible() && button.contains(x, y))
+	    			{
+	    				//if contained within the coordinates flag pressed true
+						button.setPressed(true);
+						
+						//if the button is pressed, it can't be released
+						button.setReleased(false);
+						
+						//flag change true
+						change = true;
+	    			}
+	    		}
+	    		break;
+    	}
+
+    	//return if any change was made
+    	return change;
     }
     
     @Override
     public void update() throws Exception
     {
-    	//nothing needed here
+    	//we can't continue if the list is null
+    	if (getButtons() == null)
+    		return;
+    	
+    	//check each button to see what changes
+    	for (Assets.ImageGameKey key : getButtons().keySet())
+    	{
+    		//get the current button
+    		Button button = getButtons().get(key);
+    		
+    		//if this button has been pressed and released
+    		if (button.isPressed() && button.isReleased())
+    		{
+                //reset
+        		button.setPressed(false);
+        		button.setReleased(false);
+        		
+    			//determine next steps
+    			switch (key)
+    			{
+    				//stop thrusting
+	    			case Thrust:
+	    				getGame().getShips().getShip(Ship.Type.ShipA).setThrust(false);
+	    				break;
+	    				
+	    			//do we need to to anything for these
+	    			case Fire:
+	    				getGame().getLasers().add(game.getShips().getShip(Ship.Type.ShipA));
+	    				break;
+	    				
+	    			//stop rotating if released
+	    			case RotateL:
+	    			case RotateR:
+	    				getGame().getShips().getShip(Ship.Type.ShipA).rotateReset();
+	    				break;
+    			
+	    			case Pause:
+	                    //change the state to paused
+	                    getGame().getScreen().setState(ScreenManager.State.Paused);
+	    				break;
+	    				
+	    			case Exit:
+	                    //change to the exit confirm screen
+	                    getGame().getScreen().setState(ScreenManager.State.Exit);
+	    				break;
+	    				
+	    			case AudioOn:
+	    			case AudioOff:
+	                    //flip the audio setting
+	                    Audio.setAudioEnabled(!Audio.isAudioEnabled());
+
+	        	        //determine which button is displayed
+	        	        buttons.get(Assets.ImageGameKey.AudioOn).setVisible(Audio.isAudioEnabled());
+	        	        buttons.get(Assets.ImageGameKey.AudioOff).setVisible(!Audio.isAudioEnabled());
+	                    
+	                    //make sure the correct button is showing
+	                    if (Audio.isAudioEnabled())
+	                    {
+	                        //play song
+	                        //Audio.play(Assets.AudioGameKey.Music, true);
+	                    }
+	                    else
+	                    {
+	                        //if audio is not enabled, stop all sound
+	                        Audio.stop();
+	                    }
+	    				break;
+    			
+	    			default:
+	    				throw new Exception("Key is not handled here: " + key.toString());
+    			}
+    		}
+    		else if (button.isPressed())
+    		{
+    			//if the button is just pressed and not released
+    			switch (key)
+    			{
+    				//start thrusting
+	    			case Thrust:
+	    				getGame().getShips().getShip(Ship.Type.ShipA).setThrust(true);
+	    				break;
+	    				
+	    			//don't do anything here
+	    			case Fire:
+	    				break;
+	    				
+	    			//set the rotate speed
+	    			case RotateL:
+	    				getGame().getShips().getShip(Ship.Type.ShipA).rotateLeft();
+	    				break;
+	    				
+	    			//set the rotate speed
+	    			case RotateR:
+	    				getGame().getShips().getShip(Ship.Type.ShipA).rotateRight();
+	    				break;
+	    			
+	    			//no need to do anything for these
+	    			case Pause:
+	    			case Exit:
+	    			case AudioOn:
+	    			case AudioOff:
+	    				break;
+	    				
+	    			//no need to do anything here
+	    			default:
+	    				throw new Exception("Key is not handled here: " + key.toString());
+    			}
+    		}
+    	}
     }
     
     @Override
     public void reset()
     {
-    	if (buttons != null)
+    	if (getButtons() != null)
     	{
 	        //determine which button is displayed
-	        buttons.get(Assets.ImageGameKey.AudioOn).setVisible(Audio.isAudioEnabled());
-	        buttons.get(Assets.ImageGameKey.AudioOff).setVisible(!Audio.isAudioEnabled());
+    		getButtons().get(Assets.ImageGameKey.AudioOn).setVisible(Audio.isAudioEnabled());
+    		getButtons().get(Assets.ImageGameKey.AudioOff).setVisible(!Audio.isAudioEnabled());
+	        
+	        //reset all buttons
+	        for (Button button : getButtons().values())
+	        {
+	        	if (button != null)
+	        	{
+	        		button.setPressed(false);
+	        		button.setReleased(false);
+	        	}
+	        }
     	}
     }
     
@@ -192,17 +395,20 @@ public class Controller implements IController
     public void render(final Canvas canvas) throws Exception
     {
         //draw the buttons
-        if (buttons != null)
+        if (getButtons() != null)
         {
         	//check each key in the hash map
-        	for (Assets.ImageGameKey key : buttons.keySet())
+        	for (Assets.ImageGameKey key : getButtons().keySet())
         	{
+        		//get the current button
+        		final Button button = getButtons().get(key);
+        		
         		//don't continue if button does not exist
-        		if (buttons.get(key) == null)
+        		if (button == null)
         			continue;
         		
         		//render the button
-				buttons.get(key).render(canvas);
+        		button.render(canvas);
         	}
         }
     }

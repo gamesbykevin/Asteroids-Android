@@ -1,13 +1,11 @@
 package com.gamesbykevin.asteroids.screen;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.MotionEvent;
 
 import com.gamesbykevin.androidframework.awt.Button;
-import com.gamesbykevin.androidframework.resources.Audio;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
@@ -42,7 +40,12 @@ public class ExitScreen implements Screen, Disposable
     /**
      * The dimensions of the buttons
      */
-    private static final int BUTTON_DIMENSION = 96;
+    private static final int BUTTON_DIMENSION = 144;
+    
+    /**
+     * The size of our font
+     */
+    private static final float DEFAULT_TEXT_SIZE = 72f;
     
     public ExitScreen(final ScreenManager screen)
     {
@@ -51,8 +54,9 @@ public class ExitScreen implements Screen, Disposable
         
         //create paint text object
         this.paint = new Paint(screen.getPaint());
-        this.paint.setColor(Color.WHITE);
-        this.paint.setTextSize(64F);
+        
+        //set the text size
+        this.paint.setTextSize(DEFAULT_TEXT_SIZE);
         
         //create temporary rectangle
         Rect tmp = new Rect();
@@ -97,32 +101,46 @@ public class ExitScreen implements Screen, Disposable
     }
     
     @Override
-    public boolean update(final MotionEvent event, final float x, final float y) throws Exception
+    public boolean update(final int action, final float x, final float y) throws Exception
     {
-        if (event.getAction() == MotionEvent.ACTION_UP)
+        if (action == MotionEvent.ACTION_UP)
         {
-            if (buttons.get(Assets.ImageMenuKey.Cancel).contains(x, y))
-            {
-                //if cancel, go back to game
-                screen.setState(ScreenManager.State.Running);
-                
-                //play sound effect
-                //Audio.play(Assets.AudioMenuKey.Selection);
-                
-                //return true;
-                return false;
-            }
-            else if (buttons.get(Assets.ImageMenuKey.Confirm).contains(x, y))
-            {
-                //if confirm, go back to menu
-                screen.setState(ScreenManager.State.Ready);
-                
-                //play sound effect
-                //Audio.play(Assets.AudioMenuKey.Selection);
-                
-                //return false;
-                return false;
-            }
+        	for (Assets.ImageMenuKey key : buttons.keySet())
+        	{
+        		Button button = buttons.get(key);
+        		
+        		if (button == null)
+        			continue;
+        		
+        		if (!button.contains(x, y))
+        			continue;
+        		
+        		switch (key)
+        		{
+	        		case Cancel:
+	                    //if cancel, go back to game
+	                    screen.setState(ScreenManager.State.Running);
+	                    
+	                    //play sound effect
+	                    //Audio.play(Assets.AudioMenuKey.Selection);
+	                    
+	                    //return true;
+	                    return false;
+	        			
+	        		case Confirm:
+	                    //if confirm, go back to menu
+	                    screen.setState(ScreenManager.State.Ready);
+	                    
+	                    //play sound effect
+	                    //Audio.play(Assets.AudioMenuKey.Selection);
+	                    
+	                    //return false;
+	                    return false;
+	                    
+                    default:
+                    	throw new Exception("Key not handled here " + key.toString());
+        		}
+        	}
         }
         
         //yes we want additional motion events

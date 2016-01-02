@@ -27,8 +27,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
     public static Random RANDOM = new Random(System.nanoTime());
     
     //default dimensions of window for this game
-    public static final int WIDTH = 480;
-    public static final int HEIGHT = 800;
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 480;
     
     //the reference to our activity
     private final MainActivity activity;
@@ -47,6 +47,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
 
     //get the ratio of the users screen compared to the default dimensions for the render
     private float scaleRenderX, scaleRenderY;
+    
+    //did we calculate the screen ratio yet?
+    private boolean ratio = false;
     
     /**
      * Create a new game panel
@@ -143,6 +146,24 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
         return this.activity;
     }
     
+    /**
+     * Flag that we have the screen ratio
+     * @param ratio true if we calculated the screen ratio, false otherwise
+     */
+    private void setRatio(final boolean ratio)
+    {
+    	this.ratio = ratio;
+    }
+    
+    /**
+     * Did we calculate the ratio
+     * @return true if we calculated the screen ratio, false otherwise
+     */
+    private boolean hasRatio()
+    {
+    	return this.ratio;
+    }
+    
     @Override
     public boolean performClick() 
     {
@@ -160,11 +181,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
         {
             if (getScreen() != null)
             {
+            	//in order to handle multiple motion events, we need to get the action of the current event
+            	final int actionIndex = event.getActionIndex();
+            	
                 //adjust the coordinates
-                final float x = event.getRawX() * getScaleMotionX();
-                final float y = event.getRawY() * getScaleMotionY();
-
-                switch (event.getAction())
+                final float x = event.getX(actionIndex) * getScaleMotionX();
+                final float y = event.getY(actionIndex) * getScaleMotionY();
+            	
+                //get the current action that was performed here
+                final int action = event.getActionMasked();
+                
+                switch (action)
                 {
 	                case MotionEvent.ACTION_DOWN:
 	                	
@@ -187,7 +214,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
                 }
                 
                 //update the screen/game etc.. with the specified motion events
-                return getScreen().update(event, x, y);
+                getScreen().update(action, x, y);
             }
         }
         catch (Exception e)
@@ -195,7 +222,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
             e.printStackTrace();
         }
         
-        return super.onTouchEvent(event);
+        //return true because we want all motion events
+        return true;
     }
     
     /**
@@ -229,13 +257,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
             //flag the thread as not paused
             getThread().setPause(false);
             
-            //store the ratio for the motion event
-            this.scaleMotionX = (float)GamePanel.WIDTH / getWidth();
-            this.scaleMotionY = (float)GamePanel.HEIGHT / getHeight();
-            
-            //store the ratio for the render
-            this.scaleRenderX = getWidth() / (float)GamePanel.WIDTH;
-            this.scaleRenderY = getHeight() / (float)GamePanel.HEIGHT;
+            //if we haven't calculated the ratio yet
+            if (!hasRatio())
+            {
+	            //store the ratio for the motion event
+	            this.scaleMotionX = (float)GamePanel.WIDTH / getWidth();
+	            this.scaleMotionY = (float)GamePanel.HEIGHT / getHeight();
+	            
+	            //store the ratio for the render
+	            this.scaleRenderX = getWidth() / (float)GamePanel.WIDTH;
+	            this.scaleRenderY = getHeight() / (float)GamePanel.HEIGHT;
+	            
+	            //flag that we have the ratio
+	            setRatio(true);
+            }
         }
         catch (Exception e)
         {

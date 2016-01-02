@@ -1,7 +1,6 @@
 package com.gamesbykevin.asteroids.game.controller;
 
 import android.graphics.Canvas;
-import android.view.MotionEvent;
 
 import com.gamesbykevin.androidframework.resources.Disposable;
 
@@ -13,12 +12,14 @@ public interface IController extends Disposable
 {
     /**
      * Update logic when motion event occurs
-     * @param event Motion Event
+     * @param action The action of the MotionEvent
      * @param x x-coordinate
      * @param y y-coordinate
+     * @return true if a change occurred, false otherwise
      * @throws Exception
+     * 
      */
-    public void update(final MotionEvent event, final float x, final float y) throws Exception;
+    public boolean update(final int action, final float x, final float y) throws Exception;
     
     /**
      * Logic to update at runtime, separate from the motion event

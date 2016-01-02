@@ -3,6 +3,7 @@
 	<name>Asteroids</name>
 	<comment></comment>
 	<projects>
+		<project>AndroidFramework</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
