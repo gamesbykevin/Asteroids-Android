@@ -80,12 +80,61 @@ public final class Asteroid extends Entity
 	 */
 	private static final float ROTATE_SPEED_MAX = 9.0f;
 	
+	/*
+	 * The different scores for each asteroid dependent on size.<BR>
+	 * The smaller asteroids will have a higher score because they are more difficult to hit
+	 */
+	private static final int SCORE_BIG = 5;
+	private static final int SCORE_MED = 15;
+	private static final int SCORE_SMALL = 30;
+	private static final int SCORE_TINY = 50;
+	
+	//the point value for this asteroid
+	private final int score;
+	
 	protected Asteroid(final Type type, final int[] xpoints, final int[] ypoints) 
 	{
 		super(xpoints, ypoints);
 		
 		//store the type of android
 		this.type = type;
+		
+		//set the score based on the type
+		switch (type)
+		{
+			case BrownBig1: 
+			case BrownBig2: 
+			case BrownBig3: 
+			case BrownBig4:
+			case GreyBig1:
+			case GreyBig2:
+			case GreyBig3:
+			case GreyBig4:
+			default:
+				this.score = SCORE_BIG;
+				break;
+				
+			case BrownMed1:
+			case BrownMed2:
+			case GreyMed1:
+			case GreyMed2:
+				this.score = SCORE_MED;
+				break;
+	
+			case BrownSmall1:
+			case BrownSmall2:
+			case GreySmall1:
+			case GreySmall2:
+				this.score = SCORE_SMALL;
+				break;
+				
+			case BrownTiny1:
+			case BrownTiny2:
+			case GreyTiny1:
+			case GreyTiny2:
+				this.score = SCORE_TINY;
+				break;
+		}
 		
 		//create animation
 		Animation animation = new Animation(Images.getImage(Assets.ImageGameKey.Asteroids), type.getX(), type.getY(), type.getWidth(), type.getHeight());
@@ -107,6 +156,15 @@ public final class Asteroid extends Entity
 		
 		//pick a random rotation speed
 		setRotationSpeed((GamePanel.RANDOM.nextFloat() * ROTATE_SPEED_MAX * 2) - ROTATE_SPEED_MAX);
+	}
+	
+	/**
+	 * Get the score
+	 * @return The point value for this asteroid when destroyed
+	 */
+	public int getScore()
+	{
+		return this.score;
 	}
 	
 	/**

@@ -3,15 +3,18 @@ package com.gamesbykevin.asteroids.game;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+
+import com.gamesbykevin.androidframework.resources.Audio;
+import com.gamesbykevin.androidframework.resources.Font;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.asteroids.assets.Assets;
-import com.gamesbykevin.asteroids.entity.asteroid.Asteroid;
 import com.gamesbykevin.asteroids.entity.asteroid.Asteroids;
 import com.gamesbykevin.asteroids.entity.effect.Effects;
 import com.gamesbykevin.asteroids.entity.laser.Lasers;
-import com.gamesbykevin.asteroids.entity.ship.Ship;
-import com.gamesbykevin.asteroids.entity.ship.Ships;
 import com.gamesbykevin.asteroids.game.controller.Controller;
+import com.gamesbykevin.asteroids.overlay.Overlay;
+import com.gamesbykevin.asteroids.player.Player;
+import com.gamesbykevin.asteroids.screen.OptionsScreen;
 import com.gamesbykevin.asteroids.screen.ScreenManager;
 
 /**
@@ -35,9 +38,6 @@ public final class Game implements IGame
     //has the player been notified (has the user seen the loading screen)
     private boolean notify = false;
     
-    //our collection of ships
-    private Ships ships;
-    
     //our collection of asteroids
     private Asteroids asteroids;
     
@@ -47,10 +47,11 @@ public final class Game implements IGame
     //our collection of effects
     private Effects effects;
     
-    /**
-     * The length to vibrate the phone when you beat a level
-     */
-    private static final long VIBRATION_DURATION = 500;
+    //the human and cpu players
+    private Player human, cpu;
+    
+    //the overlay to display between games
+    private Overlay overlay;
     
     /**
      * Create our game object
@@ -62,14 +63,11 @@ public final class Game implements IGame
         //our main screen object reference
         this.screen = screen;
         
-        //create new paint object
-        this.paint = new Paint();
-        this.paint.setTextSize(24f);
-        this.paint.setColor(Color.WHITE);
-        this.paint.setLinearText(false);
-        
         //create new controller
         this.controller = new Controller(this);
+        
+        //create new overlay
+        this.overlay = new Overlay(this);
     }
     
     /**
@@ -96,6 +94,9 @@ public final class Game implements IGame
      */
     public Effects getEffects()
     {
+    	if (this.effects == null)
+    		this.effects = new Effects();
+    	
     	return this.effects;
     }
     
@@ -105,16 +106,19 @@ public final class Game implements IGame
      */
     public Lasers getLasers()
     {
+    	if (this.lasers == null)
+    		this.lasers = new Lasers(this);
+    	
     	return this.lasers;
     }
     
     /**
-     * Get the ships
-     * @return Our collection of objects
+     * Get the overlay
+     * @return The overlay that will control the transition in the game
      */
-    public Ships getShips()
+    public Overlay getOverlay()
     {
-    	return this.ships;
+    	return this.overlay;
     }
     
     /**
@@ -123,6 +127,9 @@ public final class Game implements IGame
      */
     public Asteroids getAsteroids()
     {
+    	if (this.asteroids == null)
+    		this.asteroids = new Asteroids();
+    	
     	return this.asteroids;
     }
     
@@ -143,16 +150,52 @@ public final class Game implements IGame
     	
     	//flag that the user has not been notified, since we are resetting
     	if (hasReset())
-    		this.notify = false;
+    		setNotify(false);
     }
     
     /**
      * Do we have reset flagged?
      * @return true = yes, false = no
      */
-    protected boolean hasReset()
+    public boolean hasReset()
     {
     	return this.reset;
+    }
+    
+    /**
+     * Flag notify
+     * @param notify True if we notified the user, false otherwise
+     */
+    private void setNotify(final boolean notify)
+    {
+    	this.notify = notify;
+    }
+    
+    /**
+     * Do we have notify?
+     * @return true if we notified the user, false otherwise
+     */
+    protected boolean hasNotify()
+    {
+    	return this.notify;
+    }
+    
+    /**
+     * Get the human
+     * @return The human player reference
+     */
+    public Player getHuman()
+    {
+    	return this.human;
+    }
+    
+    /**
+     * Get the cpu
+     * @return The cpu player reference
+     */
+    public Player getCpu()
+    {
+    	return this.cpu;
     }
     
     /**
@@ -161,6 +204,17 @@ public final class Game implements IGame
      */
     public Paint getPaint()
     {
+    	//if the object has not been created yet
+    	if (this.paint == null)
+    	{
+            //create new paint object
+            this.paint = new Paint();
+            this.paint.setTypeface(Font.getFont(Assets.FontGameKey.Default));
+            this.paint.setTextSize(24f);
+            this.paint.setColor(Color.WHITE);
+            this.paint.setLinearText(false);
+    	}
+    	
         return this.paint;
     }
     
@@ -186,45 +240,149 @@ public final class Game implements IGame
         if (hasReset())
         {
         	//make sure we have notified first
-        	if (notify)
+        	if (hasNotify())
         	{
-        		//create a new collection of ships
-        		this.ships = new Ships(this);
-
-        		//add default ship
-        		this.ships.add(Ship.Type.ShipA);
-        		
-        		//create a new collection of asteroids
-        		this.asteroids = new Asteroids(this);
-        		
-        		//add a default asteroid
-        		this.asteroids.add(0, 0, Asteroid.Type.GreyBig1);
-        		
-        		//create a new collection of lasers
-        		this.lasers = new Lasers(this);
-        		
-        		//create a new collection of effects
-        		this.effects = new Effects();
-        		
 	        	//flag reset false
 	        	setReset(false);
+        		
+        		//remove any existing asteroids
+        		getAsteroids().get().clear();
+        		
+        		//remove any existing lasers
+        		getLasers().get().clear();
+        		
+        		//remove any existing effects
+        		getEffects().get().clear();
+        		
+        		//start at wave 1
+        		getOverlay().setWave(1);
+        		
+        		//reset the overlay
+        		getOverlay().reset();
+        		
+        		//create ships based on the game mode
+        		switch (getScreen().getScreenOptions().getIndex(OptionsScreen.Key.Mode))
+        		{
+        			//classic
+        			case OptionsScreen.MODE_CLASSIC:
+        			default:
+        				this.human = new Player(this, true);
+        				this.cpu = null;
+        				break;
+        				
+        			//coop and versus
+        			case OptionsScreen.MODE_COOP:
+        			case OptionsScreen.MODE_VERSUS:
+        				this.human = new Player(this, true);
+        				this.cpu = new Player(this, false);
+        				break;
+        		}
 	        	
 	        	//reset controller
 	        	if (getController() != null)
 	        		getController().reset();
+	        	
+	        	//the number of lives for the ship
+	        	final int lives;
+	        	
+	        	//determine how many lives the ships will get
+	    		switch (getScreen().getScreenOptions().getIndex(OptionsScreen.Key.Lives))
+	    		{
+		    		case 0:
+	    			default:
+		    			lives = 5;
+		    			break;
+		    			
+		    		case 1:
+		    			lives = 10;
+		    			break;
+		    			
+		    		case 2:
+		    			lives = 3;
+		    			break;
+	    		}
+	    		
+	    		//assign the lives to each player
+	    		if (getHuman() != null)
+	    			getHuman().setLives(lives);
+	    		if (getCpu() != null)
+	    			getCpu().setLives(lives);
+	    		
+	    		//play random song
+	    		playSong();
         	}
         }
         else
         {
-        	getShips().update();
-        	getAsteroids().update();
-        	getLasers().update();
-        	getEffects().update();
+        	if (getOverlay().isComplete())
+        	{
+        		if (getHuman() != null)
+        			getHuman().update();
+        		
+        		if (getCpu() != null)
+        			getCpu().update();
+        		
+	        	getAsteroids().update();
+	        	getLasers().update();
+	        	getEffects().update();
+	        	
+	        	//update the game elements
+	        	if (getController() != null)
+	        		getController().update();
+	        	
+				//determine what to check for by game mode
+				switch (getScreen().getScreenOptions().getIndex(OptionsScreen.Key.Mode))
+				{
+					//classic and coop
+					case OptionsScreen.MODE_CLASSIC:
+					case OptionsScreen.MODE_COOP:
+					default:
+						//if there are no more asteroids we can move to the next wave
+						if (getAsteroids().get().isEmpty())
+						{
+							//move to the next wave
+							getOverlay().setWave(getOverlay().getWave() + 1);
+							
+							//reset the wave
+							getOverlay().reset();
+						}
+						break;
+						
+					//versus
+					case OptionsScreen.MODE_VERSUS:
+						break;
+				}
+        	}
         	
-        	//update the game elements
-        	if (getController() != null)
-        		getController().update();
+    		//update always
+    		getOverlay().update();
+
+        	//update effects always
+        	getEffects().update();
         }
+    }
+    
+    /**
+     * Play random song dependent on game mode
+     */
+    public final void playSong()
+    {
+        //play different song dependent on game mode
+    	switch (getScreen().getScreenOptions().getIndex(OptionsScreen.Key.Mode))
+    	{
+    		default:
+        	case OptionsScreen.MODE_CLASSIC:
+        		Audio.play(Assets.AudioGameKey.Music1, true);
+        		break;
+        		
+        	case OptionsScreen.MODE_COOP:
+        		Audio.play(Assets.AudioGameKey.Music2, true);
+        		break;
+        		
+        	case OptionsScreen.MODE_VERSUS:
+        		Audio.play(Assets.AudioGameKey.Music3, true);
+        		break;
+    	}
     }
     
     /**
@@ -241,25 +399,59 @@ public final class Game implements IGame
 			canvas.drawBitmap(Images.getImage(Assets.ImageMenuKey.Splash), 0, 0, null);
 			
 			//flag that the user has been notified
-			notify = true;
+			setNotify(true);
     	}
     	else
     	{
-    		getLasers().render(canvas);
-    		getShips().render(canvas);
-    		getAsteroids().render(canvas);
-    		getEffects().render(canvas);
+    		//render these elements when the overlay is complete
+    		if (getOverlay().isComplete())
+    		{
+	    		//render the lasers
+	    		getLasers().render(canvas);
+	    		
+	    		//render the asteroids
+	    		getAsteroids().render(canvas);
+	    		
+		    	//render the players
+		    	if (getHuman() != null)
+		    		getHuman().render(canvas);
+		    	if (getCpu() != null)
+		    		getCpu().render(canvas);
+    		}
     		
-	    	//render the controller
-	    	if (getController() != null)
-	    		getController().render(canvas);
+    		//render the effects
+    		getEffects().render(canvas);
+	    	
+    		//render these elements when the overlay is complete
+    		if (getOverlay().isComplete())
+    		{
+    	    	//render the controller
+    	    	if (getController() != null)
+    	    		getController().render(canvas);
+    		}
+    		
+	    	//render the overlay
+	    	if (getOverlay() != null)
+	    		getOverlay().render(canvas);
     	}
     }
     
     @Override
     public void dispose()
     {
-        paint = null;
+        this.paint = null;
+        
+        if (human != null)
+        {
+        	human.dispose();
+        	human = null;
+        }
+
+        if (cpu != null)
+        {
+        	cpu.dispose();
+        	cpu = null;
+        }
         
         if (controller != null)
         {
@@ -271,12 +463,6 @@ public final class Game implements IGame
         {
         	asteroids.dispose();
         	asteroids = null;
-        }
-        
-        if (ships != null)
-        {
-        	ships.dispose();
-        	ships = null;
         }
         
         if (lasers != null)

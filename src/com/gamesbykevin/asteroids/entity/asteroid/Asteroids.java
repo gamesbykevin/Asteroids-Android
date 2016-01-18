@@ -2,10 +2,7 @@ package com.gamesbykevin.asteroids.entity.asteroid;
 
 import java.util.ArrayList;
 
-import com.gamesbykevin.asteroids.entity.ship.Ship;
-import com.gamesbykevin.asteroids.game.Game;
 import com.gamesbykevin.asteroids.panel.GamePanel;
-import com.gamesbykevin.asteroids.screen.ScreenManager.State;
 
 import android.graphics.Canvas;
 
@@ -36,14 +33,8 @@ public class Asteroids implements IAsteroids
     private static final int[] XPOINTS_TINY2 = new int[] {-7, 1, 8, 3};
     private static final int[] YPOINTS_TINY2 = new int[] {8, -8, 0, 8};
     
-    //our game reference
-    private final Game game;
-    
-	public Asteroids(final Game game)
+	public Asteroids()
 	{
-		//store our game reference
-		this.game = game;
-		
 		//create new list for the asteroids
 		this.asteroids = new ArrayList<Asteroid>();
 	}

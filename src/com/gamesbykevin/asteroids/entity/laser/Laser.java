@@ -11,7 +11,7 @@ public class Laser extends Entity
 	/**
 	 * The different kinds of lasers
 	 */
-	public enum Type
+	protected enum Type
 	{
 		Blue, Green
 	}
@@ -76,12 +76,12 @@ public class Laser extends Entity
 		//determine which laser we use
 		switch (ship.getType())
 		{
-			case ShipA:
+			case ShipHuman:
 				type = Type.Blue;
 				x = 0;
 				break;
 		
-			case ShipB:
+			case ShipCpu:
 			default:
 				type = Type.Green;
 				x = WIDTH;

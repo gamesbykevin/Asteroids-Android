@@ -94,12 +94,14 @@ public class Assets
     	Exit,
     	Explosion,
     	Fire,
+    	ShipHumanIcon,
+    	ShipCpuIcon,
     	Lasers,
     	Pause,
     	RotateL,
     	RotateR,
-    	ShipA,
-    	ShipB,
+    	ShipHuman,
+    	ShipCpu,
     	Thrust
     }
     
@@ -118,7 +120,7 @@ public class Assets
      */
     public enum AudioMenuKey
     {
-        
+        Selection
     }
     
     /**
@@ -127,7 +129,11 @@ public class Assets
      */
     public enum AudioGameKey
     {
-    	
+    	Explosion1, Explosion2, Explosion3, 
+    	Gameover,
+    	Laser1, Laser2, Laser3, 
+    	Music1, Music2, Music3,
+    	Thrust
     }
     
     /**

@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import java.util.HashMap;
 
 import com.gamesbykevin.androidframework.awt.Button;
+import com.gamesbykevin.androidframework.resources.Audio;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Font;
 import com.gamesbykevin.androidframework.resources.Images;
@@ -32,8 +33,14 @@ public class GameoverScreen implements Screen, Disposable
     //the message to display
     private String message = "";
     
+    //the additional message to display
+    private String message2 = "";
+    
     //where we draw the image
     private int messageX = 0, messageY = 0;
+    
+    //where we draw the additional image
+    private int message2X = 0, message2Y = 0;
     
     //time we have displayed text
     private long time;
@@ -49,7 +56,7 @@ public class GameoverScreen implements Screen, Disposable
     /**
      * The text to display for the new game
      */
-    private static final String BUTTON_TEXT_NEW_GAME = "Restart";
+    private static final String BUTTON_TEXT_NEW_GAME = "Retry";
     
     /**
      * The text to display for the menu
@@ -59,7 +66,11 @@ public class GameoverScreen implements Screen, Disposable
     //list of buttons
     private HashMap<Key, Button> buttons;
     
-    //keys to access each button
+    /**
+     * Keys to access each button
+     * @author GOD
+     *
+     */
     public enum Key
     {
     	Restart, Menu, Rate
@@ -75,7 +86,7 @@ public class GameoverScreen implements Screen, Disposable
         
         //the start location of the button
         int y = ScreenManager.BUTTON_Y;
-        int x = ScreenManager.BUTTON_X;
+        int x = (GamePanel.WIDTH / 2) - (MenuScreen.BUTTON_WIDTH / 2);
 
         //create our buttons
         addButton(x, y, Key.Restart, BUTTON_TEXT_NEW_GAME);
@@ -130,10 +141,11 @@ public class GameoverScreen implements Screen, Disposable
     }
     
     /**
-     * Assign the message
+     * Assign the message(s)
      * @param message The message we want displayed
+     * @param message2 The additional message
      */
-    public void setMessage(final String message)
+    public void setMessage(final String message, final String message2)
     {
         //assign the message
         this.message = message;
@@ -156,7 +168,17 @@ public class GameoverScreen implements Screen, Disposable
         
         //calculate the position of the message
         messageX = (GamePanel.WIDTH / 2) - (tmp.width() / 2);
-        messageY = (int)(GamePanel.HEIGHT * .12);
+        messageY = (int)(GamePanel.HEIGHT * .175);
+        
+        //store message
+        this.message2 = message2;
+        
+        //get the rectangle around the message
+        paint.getTextBounds(message2, 0, message2.length(), tmp);
+        
+        //calculate the position of the other message
+        message2X = (GamePanel.WIDTH / 2) - (tmp.width() / 2);
+        message2Y = (messageY + tmp.height() * 2);
     }
     
     /**
@@ -195,8 +217,8 @@ public class GameoverScreen implements Screen, Disposable
         		if (!button.contains(x, y))
         			continue;
         		
-                //remove message
-                setMessage("");
+                //remove messages
+                setMessage("", "");
                 
         		//handle each button different
         		switch (key)
@@ -210,7 +232,7 @@ public class GameoverScreen implements Screen, Disposable
 	                    screen.setState(ScreenManager.State.Running);
 	                    
 	                    //play sound effect
-	                    //Audio.play(Assets.AudioMenuKey.Selection);
+	                    Audio.play(Assets.AudioMenuKey.Selection);
 	                    
 	                    //we don't request additional motion events
 	                    return false;
@@ -221,7 +243,7 @@ public class GameoverScreen implements Screen, Disposable
 	                    screen.setState(ScreenManager.State.Ready);
 	                    
 	                    //play sound effect
-	                    //Audio.play(Assets.AudioMenuKey.Selection);
+	                    Audio.play(Assets.AudioMenuKey.Selection);
 	                    
 	                    //we don't request additional motion events
 	                    return false;
@@ -229,7 +251,7 @@ public class GameoverScreen implements Screen, Disposable
 	        		case Rate:
 	                    
 	                    //play sound effect
-	                    //Audio.play(Assets.AudioMenuKey.Selection);
+	                    Audio.play(Assets.AudioMenuKey.Selection);
 	                    
 	                    //go to rate game page
 	                    screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_RATE_URL);
@@ -272,9 +294,9 @@ public class GameoverScreen implements Screen, Disposable
             //only darken the background when the menu is displayed
             ScreenManager.darkenBackground(canvas);
             
-            //if message exists, draw the text
-            if (paint != null)
-                canvas.drawText(this.message, messageX, messageY, paint);
+            //render messages
+            canvas.drawText(this.message, messageX, messageY, screen.getPaint());
+            canvas.drawText(this.message2, message2X, message2Y, screen.getPaint());
         
             //render the buttons
             for (Key key : Key.values())

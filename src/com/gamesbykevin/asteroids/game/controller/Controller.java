@@ -11,6 +11,7 @@ import com.gamesbykevin.asteroids.assets.Assets;
 import com.gamesbykevin.asteroids.entity.ship.Ship;
 import com.gamesbykevin.asteroids.game.Game;
 import com.gamesbykevin.asteroids.panel.GamePanel;
+import com.gamesbykevin.asteroids.screen.OptionsScreen;
 import com.gamesbykevin.asteroids.screen.ScreenManager;
 
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class Controller implements IController
     /**
      * The dimensions of the game control buttons that the user will see
      */
-    private final static int BUTTON_GAME_DIMENSION = 104;
+    private final static int BUTTON_GAME_DIMENSION = 120;
     
     //location of exit button
     private final static int EXIT_X = (int)(BUTTON_DIMENSION * .25);
@@ -236,6 +237,9 @@ public class Controller implements IController
     	if (getButtons() == null)
     		return;
     	
+		//get the human controlled ship, if the ship is dead null will be assigned
+		final Ship human = (getGame().getHuman().getShip() == null || getGame().getHuman().getShip().isDead()) ? null : getGame().getHuman().getShip();
+    	
     	//check each button to see what changes
     	for (Assets.ImageGameKey key : getButtons().keySet())
     	{
@@ -254,18 +258,27 @@ public class Controller implements IController
     			{
     				//stop thrusting
 	    			case Thrust:
-	    				getGame().getShips().getShip(Ship.Type.ShipA).setThrust(false);
+	    				if (human != null)
+	    				{
+	    					//flag false
+	    					human.setThrust(false);
+	    					
+	    					//stop sound
+	    					Audio.stop(Assets.AudioGameKey.Thrust);
+	    				}
 	    				break;
 	    				
 	    			//do we need to to anything for these
 	    			case Fire:
-	    				getGame().getLasers().add(game.getShips().getShip(Ship.Type.ShipA));
+	    				if (human != null)
+	    					getGame().getLasers().add(human);
 	    				break;
 	    				
 	    			//stop rotating if released
 	    			case RotateL:
 	    			case RotateR:
-	    				getGame().getShips().getShip(Ship.Type.ShipA).rotateReset();
+	    				if (human != null)
+	    					human.rotateReset();
 	    				break;
     			
 	    			case Pause:
@@ -287,11 +300,14 @@ public class Controller implements IController
 	        	        buttons.get(Assets.ImageGameKey.AudioOn).setVisible(Audio.isAudioEnabled());
 	        	        buttons.get(Assets.ImageGameKey.AudioOff).setVisible(!Audio.isAudioEnabled());
 	                    
+	        	        //to maintain consistency, update the options screen as well
+	        	        getGame().getScreen().getScreenOptions().setIndex(OptionsScreen.Key.Sound, Audio.isAudioEnabled() ? 0 : 1);
+	        	        
 	                    //make sure the correct button is showing
 	                    if (Audio.isAudioEnabled())
 	                    {
-	                        //play song
-	                        //Audio.play(Assets.AudioGameKey.Music, true);
+	                    	//play the song again
+	                    	getGame().playSong();
 	                    }
 	                    else
 	                    {
@@ -311,7 +327,15 @@ public class Controller implements IController
     			{
     				//start thrusting
 	    			case Thrust:
-	    				getGame().getShips().getShip(Ship.Type.ShipA).setThrust(true);
+	    				if (human != null)
+	    				{
+	    					//if we weren't thrusting previous
+	    					if (!human.hasThrust())
+	    						Audio.play(Assets.AudioGameKey.Thrust, true);
+	    					
+	    					//flag thrusting true
+	    					human.setThrust(true);
+	    				}
 	    				break;
 	    				
 	    			//don't do anything here
@@ -320,12 +344,14 @@ public class Controller implements IController
 	    				
 	    			//set the rotate speed
 	    			case RotateL:
-	    				getGame().getShips().getShip(Ship.Type.ShipA).rotateLeft();
+	    				if (human != null)
+	    					human.rotateLeft();
 	    				break;
 	    				
 	    			//set the rotate speed
 	    			case RotateR:
-	    				getGame().getShips().getShip(Ship.Type.ShipA).rotateRight();
+	    				if (human != null)
+	    					human.rotateRight();
 	    				break;
 	    			
 	    			//no need to do anything for these

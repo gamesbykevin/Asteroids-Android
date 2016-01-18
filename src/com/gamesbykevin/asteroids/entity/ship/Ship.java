@@ -9,27 +9,27 @@ import com.gamesbykevin.asteroids.panel.GamePanel;
 
 import android.graphics.Canvas;
 
-public final class Ship extends Entity implements IEntity
+public class Ship extends Entity implements IEntity
 {
 	/**
 	 * The width of the ship
 	 */
-	private static final int WIDTH = 99;
+	protected static final int WIDTH = 99;
 	
 	/**
 	 * The height of the ship
 	 */
-	private static final int HEIGHT = 106;
+	protected static final int HEIGHT = 106;
 
 	/**
 	 * The rotation per update (in degrees)
 	 */
-	private static final float ROTATION_SPEED = 9;
+	protected static final float ROTATION_SPEED = 12;
 	
 	/**
 	 * No rotation speed
 	 */
-	private static final float ROTATION_SPEED_NONE = 0;
+	protected static final float ROTATION_SPEED_NONE = 0;
 	
 	/**
 	 * The default time delay between animations
@@ -51,7 +51,7 @@ public final class Ship extends Entity implements IEntity
     /**
      * The rate at which we can accelerate
      */
-    private final double DEFAULT_SPEED_RATE = .25;
+    private final double DEFAULT_SPEED_RATE = .375;
     
     /**
      * The current speed rate of the ship
@@ -68,8 +68,8 @@ public final class Ship extends Entity implements IEntity
      */
     public enum Type
     {
-    	ShipA,
-    	ShipB,
+    	ShipHuman,
+    	ShipCpu,
     }
     
     //store the kind of ship
@@ -89,7 +89,7 @@ public final class Ship extends Entity implements IEntity
 	 * Create a new ship
 	 * @param key The key to access the ship animations
 	 */ 
-	protected Ship(final Type type)
+	public Ship(final Type type)
 	{
 		super(XPOINTS, YPOINTS);
 		
@@ -105,13 +105,13 @@ public final class Ship extends Entity implements IEntity
 		//determine animation key
     	switch (type)
     	{
-	    	case ShipA:
-	    		imageKey = Assets.ImageGameKey.ShipA;
+	    	case ShipHuman:
+	    		imageKey = Assets.ImageGameKey.ShipHuman;
 	    		break;
     		
-	    	case ShipB:
+	    	case ShipCpu:
 			default:
-				imageKey = Assets.ImageGameKey.ShipB;
+				imageKey = Assets.ImageGameKey.ShipCpu;
 	    		break;
     	}
     	

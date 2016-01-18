@@ -80,7 +80,7 @@ public final class ScreenManager implements Screen, Disposable
     /**
      * Default font size
      */
-    public static final float DEFAULT_FONT_SIZE = 48f;
+    public static final float DEFAULT_FONT_SIZE = 44f;
     
     /**
      * Create our main screen
@@ -230,14 +230,6 @@ public final class ScreenManager implements Screen, Disposable
 	        {
 	            //stop sound
 	            Audio.stop();
-	        }
-	        
-	        //if we want to start running the game
-	        if (state == State.Running)
-	        {
-	        	//if the game was previously paused, play music again
-	        	//if (getState() == State.Paused || getState() == State.Exit)
-	        		//Assets.playMusic();
 	        }
     	}
     	finally

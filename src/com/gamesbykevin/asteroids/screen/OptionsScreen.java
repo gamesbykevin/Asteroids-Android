@@ -37,8 +37,23 @@ public class OptionsScreen implements Screen, Disposable
     //buttons to access each button in the list
     public enum Key
     {
-    	Back, Sound, Vibrate, Instructions, Facebook, Twitter
+    	Back, Sound, Vibrate, Instructions, Facebook, Twitter, Mode, Lives
     }
+    
+    /**
+     * Classic Mode
+     */
+    public static final int MODE_CLASSIC = 0;
+    
+    /**
+     * Coop Mode
+     */
+    public static final int MODE_COOP = 1;
+    
+    /**
+     * Versus Mode
+     */
+    public static final int MODE_VERSUS = 2;
     
     public OptionsScreen(final ScreenManager screen)
     {
@@ -59,11 +74,21 @@ public class OptionsScreen implements Screen, Disposable
         addButtonSound(x, y);
         
         //add vibrate option
-        y += ScreenManager.BUTTON_Y_INCREMENT;
+        x += ScreenManager.BUTTON_X_INCREMENT;
         addButtonVibrate(x, y);
+        
+        //add mode button
+        y += ScreenManager.BUTTON_Y_INCREMENT;
+        x = ScreenManager.BUTTON_X;
+        addButtonMode(x, y);
+        
+        //add lives button
+        x += ScreenManager.BUTTON_X_INCREMENT;
+        addButtonLives(x, y);
         
         //the back button
         y += ScreenManager.BUTTON_Y_INCREMENT;
+        x = ScreenManager.BUTTON_X;
         addButtonBack(x, y);
         
         //add social media icons after the above, because the dimensions are different
@@ -152,6 +177,28 @@ public class OptionsScreen implements Screen, Disposable
         this.buttons.put(Key.Sound, button);
     }
 
+    private void addButtonMode(final int x, final int y)
+    {
+        Button button = new Button(Images.getImage(Assets.ImageMenuKey.Button));
+        button.addDescription("Mode: Classic");
+        button.addDescription("Mode: Co-op");
+        button.addDescription("Mode: Versus");
+        button.setX(x);
+        button.setY(y);
+        this.buttons.put(Key.Mode, button);
+    }
+    
+    private void addButtonLives(final int x, final int y)
+    {
+        Button button = new Button(Images.getImage(Assets.ImageMenuKey.Button));
+        button.addDescription("Lives: 5");
+        button.addDescription("Lives: 10");
+        button.addDescription("Lives: 3");
+        button.setX(x);
+        button.setY(y);
+        this.buttons.put(Key.Lives, button);
+    }
+    
     private void addButtonVibrate(final int x, final int y)
     {
         Button button = new Button(Images.getImage(Assets.ImageMenuKey.Button));
@@ -202,6 +249,8 @@ public class OptionsScreen implements Screen, Disposable
 						case Back:
 						case Sound:
 						case Vibrate:
+						case Mode:
+						case Lives:
 							button.positionText(getScreen().getPaint());
 							break;
 							
@@ -249,7 +298,6 @@ public class OptionsScreen implements Screen, Disposable
 				switch (key)
 				{
     				case Back:
-    					
     					//change index
     					button.setIndex(button.getIndex() + 1);
     					
@@ -260,12 +308,14 @@ public class OptionsScreen implements Screen, Disposable
     	                getScreen().setState(ScreenManager.State.Ready);
     	                
     	                //play sound effect
-    	                //Audio.play(Assets.AudioMenuKey.Selection);
+    	                Audio.play(Assets.AudioMenuKey.Selection);
     	                
     	                //no need to continue
     	                return false;
     	                
+    				case Mode:
     				case Vibrate:
+    				case Lives:
     					//change index
     					button.setIndex(button.getIndex() + 1);
     					
@@ -273,11 +323,11 @@ public class OptionsScreen implements Screen, Disposable
     			        button.positionText(getScreen().getPaint());
     					
     	                //play sound effect
-    	                //Audio.play(Assets.AudioMenuKey.Selection);
+    	                Audio.play(Assets.AudioMenuKey.Selection);
     	                
                         //no need to continue
                         return false;
-    					
+                        
     				case Sound:
     	    			
     					//change index
@@ -298,7 +348,7 @@ public class OptionsScreen implements Screen, Disposable
                         }
                         
                         //play sound effect
-                        //Audio.play(Assets.AudioMenuKey.Selection);
+                        Audio.play(Assets.AudioMenuKey.Selection);
                         
                         //exit loop
                         return false;
@@ -306,7 +356,7 @@ public class OptionsScreen implements Screen, Disposable
     				case Instructions:
     					
     	                //play sound effect
-    	                //Audio.play(Assets.AudioMenuKey.Selection);
+    	                Audio.play(Assets.AudioMenuKey.Selection);
     	                
     	                //go to instructions
     					getScreen().getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_GAME_INSTRUCTIONS_URL);
@@ -317,7 +367,7 @@ public class OptionsScreen implements Screen, Disposable
     				case Facebook:
     					
     	                //play sound effect
-    	                //Audio.play(Assets.AudioMenuKey.Selection);
+    	                Audio.play(Assets.AudioMenuKey.Selection);
     	                
     	                //go to instructions
     					getScreen().getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_FACEBOOK_URL);
@@ -328,7 +378,7 @@ public class OptionsScreen implements Screen, Disposable
     				case Twitter:
     					
     	                //play sound effect
-    	                //Audio.play(Assets.AudioMenuKey.Selection);
+    	                Audio.play(Assets.AudioMenuKey.Selection);
     	                
     	                //go to instructions
     					getScreen().getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_TWITTER_URL);
@@ -368,6 +418,8 @@ public class OptionsScreen implements Screen, Disposable
 	    			case Back:
 	    			case Sound:
 	    			case Vibrate:
+	    			case Mode:
+	    			case Lives:
 	    				buttons.get(key).render(canvas, getScreen().getPaint());
 	    				break;
 	    				

@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.view.MotionEvent;
 
 import com.gamesbykevin.androidframework.awt.Button;
+import com.gamesbykevin.androidframework.resources.Audio;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.androidframework.screen.Screen;
@@ -37,7 +38,7 @@ public class MenuScreen implements Screen, Disposable
     /**
      * Button text to display to rate the game
      */
-    public static final String BUTTON_TEXT_RATE_APP = "Rate App";
+    public static final String BUTTON_TEXT_RATE_APP = "Rate";
     
     /**
      * Button text to display to start a new game
@@ -87,9 +88,6 @@ public class MenuScreen implements Screen, Disposable
         
         //create a new hash map
         this.buttons = new HashMap<Key, Button>();
-        
-        //temporary button
-        Button tmp;
         
         double x = ScreenManager.BUTTON_X;
         double y = ScreenManager.BUTTON_Y;
@@ -217,7 +215,7 @@ public class MenuScreen implements Screen, Disposable
         			{
 		        		case Instructions:
 		                    //play sound effect
-		                    //Audio.play(Assets.AudioMenuKey.Selection);
+		                    Audio.play(Assets.AudioMenuKey.Selection);
 		                    
 		                    //go to instructions
 		                    this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_GAME_INSTRUCTIONS_URL);
@@ -227,7 +225,7 @@ public class MenuScreen implements Screen, Disposable
 		                    
 		        		case Facebook:
 		                    //play sound effect
-		                    //Audio.play(Assets.AudioMenuKey.Selection);
+		                    Audio.play(Assets.AudioMenuKey.Selection);
 		                    
 		                    //go to instructions
 		                    this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_FACEBOOK_URL);
@@ -237,7 +235,7 @@ public class MenuScreen implements Screen, Disposable
 		                    
 		        		case Twitter:
 		                    //play sound effect
-		                    //Audio.play(Assets.AudioMenuKey.Selection);
+		                    Audio.play(Assets.AudioMenuKey.Selection);
 		                    
 		                    //go to instructions
 		                    this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_TWITTER_URL);
@@ -253,14 +251,14 @@ public class MenuScreen implements Screen, Disposable
 		                    notify = false;
 		                    
 		                    //play sound effect
-		                    //Audio.play(Assets.AudioMenuKey.Selection);
+		                    Audio.play(Assets.AudioMenuKey.Selection);
 		                    
 		                    //we do not request any additional events
 		                    return false;
 		                    
 	        			case Exit:
 	                        //play sound effect
-	                        //Audio.play(Assets.AudioMenuKey.Selection);
+	                        Audio.play(Assets.AudioMenuKey.Selection);
 	                        
 	                        //exit game
 	                        this.screen.getPanel().getActivity().finish();
@@ -273,14 +271,14 @@ public class MenuScreen implements Screen, Disposable
 	                        screen.setState(ScreenManager.State.Options);
 	                        
 	                        //play sound effect
-	                        //Audio.play(Assets.AudioMenuKey.Selection);
+	                        Audio.play(Assets.AudioMenuKey.Selection);
 	                        
 	                        //we do not request any additional events
 	                        return false;
 	                        
 	    				case More: 
 	    	                //play sound effect
-	    	                //Audio.play(Assets.AudioMenuKey.Selection);
+	    	                Audio.play(Assets.AudioMenuKey.Selection);
 	    	                
 	    	                //go to web page
 	    	                this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_MORE_GAMES_URL);
@@ -290,7 +288,7 @@ public class MenuScreen implements Screen, Disposable
 	    	                
 						case Rate:
 			                //play sound effect
-			                //Audio.play(Assets.AudioMenuKey.Selection);
+			                Audio.play(Assets.AudioMenuKey.Selection);
 			                
 			                //go to web page
 			                this.screen.getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_RATE_URL);

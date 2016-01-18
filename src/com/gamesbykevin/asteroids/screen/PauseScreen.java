@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.screen.Screen;
 import com.gamesbykevin.asteroids.panel.GamePanel;
+import com.gamesbykevin.asteroids.screen.ScreenManager.State;
 
 /**
  * The pause screen
@@ -91,6 +92,10 @@ public class PauseScreen implements Screen, Disposable
         {
             //return to the previous state
             screen.setState(previous);
+            
+            //resume song play
+            if (previous == State.Running)
+            	screen.getScreenGame().getGame().playSong();
             
             //no need to return additional events
             return false;
