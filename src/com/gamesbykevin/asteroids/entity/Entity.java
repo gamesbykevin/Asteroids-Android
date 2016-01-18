@@ -3,8 +3,6 @@ package com.gamesbykevin.asteroids.entity;
 import com.gamesbykevin.asteroids.panel.GamePanel;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Region;
 

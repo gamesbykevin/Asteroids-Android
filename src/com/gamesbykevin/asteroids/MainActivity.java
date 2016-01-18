@@ -22,12 +22,12 @@ public class MainActivity extends Activity
     /**
      * The web address where this game can be rated
      */
-    public static final String WEBPAGE_RATE_URL = "https://play.google.com/store/apps/details?id=com.gamesbykevin.flood";
+    public static final String WEBPAGE_RATE_URL = "https://play.google.com/store/apps/details?id=com.gamesbykevin.asteroids";
 
     /**
      * The url that contains the instructions for the game
      */
-    public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = "http://gamesbykevin.com";
+    public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = " http://gamesbykevin.com/2016/01/17/asteroids-2";
     
     /**
      * The face book url
