@@ -27,7 +27,7 @@ public class MainActivity extends Activity
     /**
      * The url that contains the instructions for the game
      */
-    public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = " http://gamesbykevin.com/2016/01/17/asteroids-2";
+    public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = "http://gamesbykevin.com/2016/01/17/asteroids-2";
     
     /**
      * The face book url
@@ -141,7 +141,7 @@ public class MainActivity extends Activity
         Intent intent = new Intent(Intent.ACTION_VIEW);
         
         //the content will be the web page
-        intent.setData(Uri.parse(url));
+        intent.setData(Uri.parse(url.trim()));
         
         //start this new activity
         startActivity(intent);        
